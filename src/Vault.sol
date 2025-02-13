@@ -3,6 +3,10 @@ pragma solidity ^0.8.24;
 
 import "./interfaces/IRebaseToken.sol";
 
+/**
+ * @title Vault
+ * @dev A simple vault that allows users to deposit and redeem the underlying asset
+ */
 contract Vault {
     IRebaseToken public immutable i_rebaseToken;
 
@@ -18,6 +22,11 @@ contract Vault {
     // allows the contract to receive rewards
     receive() external payable {}
 
+    /**
+     * @dev called when depositing or bridging eth
+     * @dev mint the amount of rebase token and the accured interest
+     * @dev then set the interest rate with i_rebaseToken.getInterestRate()
+     */
     function deposit() external payable {
         i_rebaseToken.mint(msg.sender, msg.value, i_rebaseToken.getInterestRate());
         emit Deposit(msg.sender, msg.value);
