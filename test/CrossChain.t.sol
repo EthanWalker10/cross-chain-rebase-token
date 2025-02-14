@@ -130,6 +130,9 @@ contract CrossChainTest is Test {
         vm.stopPrank();
     }
 
+    /**
+     * @notice add a remote pool and token to localPool on the fork
+     */
     function configureTokenPool(
         uint256 fork,
         TokenPool localPool,
@@ -149,7 +152,8 @@ contract CrossChainTest is Test {
             outboundRateLimiterConfig: RateLimiter.Config({isEnabled: false, capacity: 0, rate: 0}),
             inboundRateLimiterConfig: RateLimiter.Config({isEnabled: false, capacity: 0, rate: 0})
         });
-        // uint64[] memory remoteChainSelectorsToRemove = new uint64[](0);
+        // only owner can call
+        // add new remote chain and token which can be accessed by sourcePool(localPool), and set the rate limit
         localPool.applyChainUpdates(chains);
         vm.stopPrank();
     }
