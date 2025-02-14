@@ -62,7 +62,7 @@ contract CrossChainTest is Test {
         sepoliaFork = vm.createSelectFork("https://eth-sepolia.g.alchemy.com/v2/DelZG8bng3a87lp_A2ESHoG1YggUAYYO"); // create and select
         arbSepoliaFork = vm.createFork("https://arbitrum-sepolia.gateway.tenderly.co"); // an RPC URL and  optional block number
 
-        //NOTE: what does this do?
+        // Deploy the CCIP local simulator fork and make it persistent
         ccipLocalSimulatorFork = new CCIPLocalSimulatorFork();
         vm.makePersistent(address(ccipLocalSimulatorFork));
 
