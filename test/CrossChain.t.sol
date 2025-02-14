@@ -6,6 +6,7 @@ import {console, Test} from "forge-std/Test.sol";
 import {CCIPLocalSimulatorFork, Register} from "@chainlink-local/src/ccip/CCIPLocalSimulatorFork.sol";
 import {TokenPool} from "@ccip/contracts/src/v0.8/ccip/pools/TokenPool.sol";
 import {RegistryModuleOwnerCustom} from "@ccip/contracts/src/v0.8/ccip/tokenAdminRegistry/RegistryModuleOwnerCustom.sol";
+// manage the role of the token's Admin, make sure that only granted address can call the CCIP functions(like Mint, Burn, transfer...)
 import {TokenAdminRegistry} from "@ccip/contracts/src/v0.8/ccip/tokenAdminRegistry/TokenAdminRegistry.sol";
 import {RateLimiter} from "@ccip/contracts/src/v0.8/ccip/libraries/RateLimiter.sol";
 import {IERC20} from "@ccip/contracts/src/v0.8/vendor/openzeppelin-solidity/v4.8.3/contracts/token/ERC20/IERC20.sol";
@@ -58,8 +59,8 @@ contract CrossChainTest is Test {
         // sourceDeployer = new SourceDeployer();
 
         // 1. Setup the Sepolia and arb forks
-        sepoliaFork = vm.createSelectFork("eth"); // an RPC URL and  optional block number
-        arbSepoliaFork = vm.createFork("arb"); // 
+        sepoliaFork = vm.createSelectFork("https://eth-sepolia.g.alchemy.com/v2/DelZG8bng3a87lp_A2ESHoG1YggUAYYO"); // create and select
+        arbSepoliaFork = vm.createFork("https://arbitrum-sepolia.gateway.tenderly.co"); // an RPC URL and  optional block number
 
         //NOTE: what does this do?
         ccipLocalSimulatorFork = new CCIPLocalSimulatorFork();
@@ -139,17 +140,17 @@ contract CrossChainTest is Test {
         vm.selectFork(fork);
         vm.startPrank(owner);
         TokenPool.ChainUpdate[] memory chains = new TokenPool.ChainUpdate[](1);
-        bytes[] memory remotePoolAddresses = new bytes[](1);
-        remotePoolAddresses[0] = abi.encode(address(remotePool));
+        bytes memory remotePoolAddress = abi.encode(address(remotePool));
         chains[0] = TokenPool.ChainUpdate({
             remoteChainSelector: remoteNetworkDetails.chainSelector,
-            remotePoolAddresses: remotePoolAddresses,
+            allowed: true,
+            remotePoolAddress: remotePoolAddress,
             remoteTokenAddress: abi.encode(address(remoteToken)),
             outboundRateLimiterConfig: RateLimiter.Config({isEnabled: false, capacity: 0, rate: 0}),
             inboundRateLimiterConfig: RateLimiter.Config({isEnabled: false, capacity: 0, rate: 0})
         });
-        uint64[] memory remoteChainSelectorsToRemove = new uint64[](0);
-        localPool.applyChainUpdates(remoteChainSelectorsToRemove, chains);
+        // uint64[] memory remoteChainSelectorsToRemove = new uint64[](0);
+        localPool.applyChainUpdates(chains);
         vm.stopPrank();
     }
 
